@@ -1,28 +1,22 @@
 import { useState } from "react";
+import { v4 } from "uuid";
 import {
   PersonForm,
   ExperienceForm,
   EducationForm,
 } from "./components/input.jsx";
 import { Header } from "./components/output.jsx";
-import { format } from "date-fns";
 import { TopHeader } from "./components/header.jsx";
+import { ArrayOfEducation } from "./components/educationList.jsx";
+import { ArrayExperience } from "./components/experienceList.jsx";
 function App() {
+  const unique_id = v4();
   const [experienceId, setExperienceId] = useState(2);
-  const [educationId, setEducationId] = useState(2);
+  const [educationId, setEducationId] = useState(1);
   const [editButtons, setEditButtons] = useState("editButton");
-  const toggleEdit = () => {
-    if (editButtons === "editButton") setEditButtons("editButtonHidden");
-    else setEditButtons("editButton");
-  };
-  const submitExperience = () => {
-    setExperienceId(experienceId + 1);
-    event.preventDefault();
-  };
-  const submitEducation = () => {
-    setEducationId(educationId + 1);
-    event.preventDefault();
-  };
+  const [personalInfoOpen, setPersonalInfo] = useState(false);
+  const [schoolInfoOpen, setSchoolInfo] = useState(false);
+  const [workInfoOpen, setWorkInfo] = useState(false);
   const [person, setPerson] = useState({
     name: "name",
     number: "number",
@@ -49,6 +43,15 @@ function App() {
       description:
         "Do you have an array of objects or data items and want to list them in your React app? Well, you’re at the right place! Rendering an array of objects is pretty simple and this blog has been written to make it even more simpler for you.",
     },
+    {
+      id: 2,
+      company: "",
+      position: "",
+      location: "",
+      startDate: "10/10/2022",
+      endDate: "10/10/2022",
+      description: "",
+    },
   ]);
   const [education, setEducation] = useState([
     {
@@ -68,57 +71,73 @@ function App() {
       startDate: "10/10/2022",
     },
   ]);
-  const arrayOfEducation = education.map((item) => {
-    return (
-      <div key={item.id} className="listItem">
-        <div className="firstHalflist">
-          <li>
-            {format(new Date(item.startDate), "MM/dd/yyyy")}
-            {" - "}
-            {format(new Date(item.endDate), "MM/dd/yyyy")}
-          </li>
-          <li>{item.location}</li>
-          <button className={editButtons}>Edit</button>
-        </div>
-        <div className="secondHalfList">
-          <li>{item.school}</li>
-          <li>{item.degree}</li>
-        </div>
-        <br />
-      </div>
+  const toggleEdit = () => {
+    if (editButtons === "editButton") setEditButtons("editButtonHidden");
+    else setEditButtons("editButton");
+  };
+  const newExperience = () => {
+    let tempID = unique_id;
+    setExperienceId(tempID);
+    setExperience([
+      ...experience,
+      {
+        id: tempID,
+        company: "",
+        position: "",
+        location: "",
+        startDate: "10/10/2022",
+        endDate: "10/10/2022",
+        description: "",
+      },
+    ]);
+    event.preventDefault();
+  };
+  const newEducation = () => {
+    setEducationId(unique_id);
+    event.preventDefault();
+  };
+  function editExperienceButton(input) {
+    setExperienceId(input);
+  }
+  function editEducationButton(input) {
+    setEducationId(input);
+  }
+  function deleteEducation(input) {
+    if (input === educationId && education.length > 0) {
+      setEducationId(education[education.length - 1].id);
+    } else {
+      setEducationId(0);
+    }
+    setEducation(
+      education.filter((item) => {
+        if (item.id !== input) {
+          return item;
+        }
+      })
     );
-  });
-
-  const arrayOfExperience = experience.map((item) => {
-    return (
-      <div key={item.id} className="listItem">
-        <div className="firstHalflist">
-          <li>
-            {format(new Date(item.startDate), "MM/dd/yyyy")}
-            {" - "}
-            {format(new Date(item.endDate), "MM/dd/yyyy")}
-          </li>
-          <li>{item.location}</li>
-          <button className={editButtons}>Edit</button>
-        </div>
-
-        <div className="secondHalfList">
-          <li>{item.company}</li>
-          <li>{item.position}</li>
-          <li>{item.description}</li>
-        </div>
-
-        <br />
-      </div>
+  }
+  function deleteExperience(input) {
+    if (input === experienceId && experience.length > 0) {
+      setExperienceId(experience[experience.length - 1].id);
+    } else {
+      setEducationId(0);
+    }
+    setExperience(
+      experience.filter((item) => {
+        if (item.id !== input) {
+          return item;
+        }
+      })
     );
-  });
+  }
   function changeName(input) {
     if (input.name === "") input.name = person.name;
     if (input.number === "") input.number = person.number;
     if (input.email === "") input.email = person.email;
     setPerson({ name: input.name, number: input.number, email: input.email });
   }
-  function addExperience(newJob, title) {
+  //add new experience on submit button
+  function editExperience(newJob, title) {
     let exists = false;
     let newArray = experience.map((item) => {
       if (item.id === newJob.id) {
@@ -130,7 +149,6 @@ function App() {
         else if (title === "endDate") item.endDate = newJob.endDate;
         else if (title === "description") item.description = newJob.description;
       }
-
       return item;
     });
     if (exists) {
@@ -139,7 +157,7 @@ function App() {
       setExperience([...experience, newJob]);
     }
   }
-  function addEducation(newSchool) {
+  function editEducation(newSchool) {
     let exists = false;
     let newArray = education.map((item) => {
       if (item.id === newSchool.id) {
@@ -160,11 +178,8 @@ function App() {
       setEducation([...education, newSchool]);
     }
   }
-  const [personalInfoOpen, setPersonalInfo] = useState(false);
-  const [schoolInfoOpen, setSchoolInfo] = useState(false);
-  const [workInfoOpen, setWorkInfo] = useState(false);
-
-  const toggle = () => {
+  //functions to toggle the form input fields
+  const toggleName = () => {
     setPersonalInfo((personalInfoOpen) => !personalInfoOpen);
     if (workInfoOpen) setWorkInfo(!workInfoOpen);
     if (schoolInfoOpen) setSchoolInfo(!schoolInfoOpen);
@@ -180,29 +195,42 @@ function App() {
     if (personalInfoOpen) setPersonalInfo(!personalInfoOpen);
   };
   let paperClasses = `paper print`;
+
   return (
     <>
       <TopHeader toggle={toggleEdit}></TopHeader>
       <div className="main">
         <div className="leftSide">
           <div className="infoSidebar">
-            <button onClick={toggle}>Personal Information</button>
-            {personalInfoOpen && <PersonForm change={changeName} />}
+            <button onClick={toggleName}>Personal Information</button>
+            {personalInfoOpen && (
+              <PersonForm change={changeName} info={person} />
+            )}
             <button onClick={toggleWork}>Work Information</button>
             {workInfoOpen && (
               <ExperienceForm
-                change={addExperience}
+                change={editExperience}
                 id={experienceId}
-                submit={submitExperience}
+                submit={newExperience}
+                itemValues={experience.filter((item) => {
+                  if (item.id === experienceId) {
+                    return item;
+                  }
+                })}
               />
             )}
 
             <button onClick={toggleSchool}>School Information</button>
             {schoolInfoOpen && (
               <EducationForm
-                change={addEducation}
+                change={editEducation}
                 id={educationId}
-                submit={submitEducation}
+                submit={newEducation}
+                itemValues={education.filter((item) => {
+                  if (item.id === educationId) {
+                    return item;
+                  }
+                })}
               />
             )}
           </div>
@@ -210,10 +238,20 @@ function App() {
         <div className="rightSide">
           <div className={paperClasses}>
             <Header input={person} />
-            <h2>Education</h2>
-            <ul>{arrayOfExperience}</ul>
-            <h3>Job History</h3>
-            <ul>{arrayOfEducation}</ul>
+            <h2>Job History</h2>
+            <ArrayExperience
+              experience={experience}
+              editButtons={editButtons}
+              editExperience={editExperienceButton}
+              deleteExperience={deleteExperience}
+            />
+            <h3>Education</h3>
+            <ArrayOfEducation
+              education={education}
+              editButtons={editButtons}
+              editEducation={editEducationButton}
+              deleteEducation={deleteEducation}
+            />
           </div>
         </div>
       </div>

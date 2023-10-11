@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 
-function PersonForm({ change }) {
-  let info = { name: "", number: "", email: "" };
+function PersonForm({ change, info }) {
   function changeName(input) {
     info.name = input;
     change(info);
@@ -25,6 +24,7 @@ function PersonForm({ change }) {
             onChange={(e) => {
               changeName(e.target.value);
             }}
+            value={info.name}
             type="text"
           />
         </label>
@@ -32,7 +32,7 @@ function PersonForm({ change }) {
           Email:
           <input
             className="input"
-            placeholder={"sfsdff"}
+            value={info.email}
             type="email"
             onChange={(e) => {
               changeEmail(e.target.value);
@@ -42,6 +42,7 @@ function PersonForm({ change }) {
         <label>
           Phone Number:
           <input
+            value={info.number}
             className="input"
             onChange={(e) => {
               changeNumber(e.target.value);
@@ -59,7 +60,7 @@ function reset() {
     inputs[i].value = "";
   }
 }
-function ExperienceForm({ change, id, submit }) {
+function ExperienceForm({ id, itemValues, change, submit }) {
   let experience = {
     id: id,
     company: " ",
@@ -69,6 +70,19 @@ function ExperienceForm({ change, id, submit }) {
     endDate: new Date(),
     description: " ",
   };
+  if (itemValues[0] === undefined) {
+    itemValues = [
+      {
+        id: id,
+        company: " ",
+        position: " ",
+        location: " ",
+        startDate: new Date(),
+        endDate: new Date(),
+        description: " ",
+      },
+    ];
+  }
 
   return (
     <>
@@ -84,6 +98,7 @@ function ExperienceForm({ change, id, submit }) {
           <input
             className="input"
             type="text"
+            value={itemValues[0].company}
             onChange={(e) => {
               experience.company = e.target.value;
               change(experience, "company");
@@ -95,6 +110,7 @@ function ExperienceForm({ change, id, submit }) {
           <input
             className="input"
             type="text"
+            value={itemValues[0].position}
             onChange={(e) => {
               experience.position = e.target.value;
               change(experience, "position");
@@ -125,6 +141,7 @@ function ExperienceForm({ change, id, submit }) {
         <label>
           Location:
           <input
+            value={itemValues[0].location}
             className="input"
             type="text"
             onChange={(e) => {
@@ -135,7 +152,8 @@ function ExperienceForm({ change, id, submit }) {
         </label>
         <label>
           Description:
-          <textArea
+          <input
+            value={itemValues[0].description}
             className="input"
             onChange={(e) => {
               experience.description = e.target.value;
@@ -143,13 +161,13 @@ function ExperienceForm({ change, id, submit }) {
             }}
           />
         </label>
-        <button type="submit">Submit form</button>
+        <button type="submit">New</button>
       </form>
     </>
   );
 }
 
-function EducationForm({ id, change, submit }) {
+function EducationForm({ id, itemValues, change, submit }) {
   let education = {
     id: id,
     school: "",
@@ -158,6 +176,19 @@ function EducationForm({ id, change, submit }) {
     endDate: new Date(),
     startDate: new Date(),
   };
+  if (itemValues[0] === undefined) {
+    itemValues = [
+      {
+        id: id,
+        school: "",
+        degree: "",
+        location: "",
+        endDate: new Date(),
+        startDate: new Date(),
+      },
+    ];
+  }
+  console.log(itemValues);
   return (
     <>
       <form
@@ -172,6 +203,7 @@ function EducationForm({ id, change, submit }) {
           <input
             className="input"
             type="text"
+            value={itemValues[0].school}
             onChange={(e) => {
               education.school = e.target.value;
               change(education);
@@ -181,6 +213,7 @@ function EducationForm({ id, change, submit }) {
         <label>
           Location:
           <input
+            value={itemValues[0].location}
             className="input"
             type="text"
             onChange={(e) => {
@@ -192,6 +225,7 @@ function EducationForm({ id, change, submit }) {
         <label>
           Degree:
           <input
+            value={itemValues[0].degree}
             className="input"
             type="text"
             onChange={(e) => {
@@ -220,13 +254,11 @@ function EducationForm({ id, change, submit }) {
             }}
           />
         </label>
-        <button type="submit">Submit form</button>
+        <button type="submit">New</button>
       </form>
     </>
   );
 }
 
 export { PersonForm, ExperienceForm, EducationForm };
-PersonForm.propTypes = {
-  change: PropTypes.string.isRequired,
-};
+
